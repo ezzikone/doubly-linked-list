@@ -26,43 +26,44 @@ class LinkedList {
 
     head() {
         if (this._head) {
-            return this._head.data;
+            return this._head.data;  //если есть начало списка, выводим его
         }
         return null
     }
 
     tail() {
         if (this._tail){
-            return this._tail.data;
+            return this._tail.data; //если есть конец списка, выводим его
         }
         return null
     }
 
     at(index) {
-        let currentNode = this._head,
+        let curr = this._head,
             count = 0;
 
-        while (count < index) {
-            currentNode = currentNode.next;
+        while (count < index) { //цикл перебора по индексу
+            curr = curr.next;
             count++;
         }
-
-        return currentNode.data;
+        if (curr !== null) {
+            return curr.data; //если нашли, выводим
+        }
     }
 
     insertAt(index, data) {
         let node = this._head,
             count = 0;
 
-        while (count < index) {
+        while (count < index) { //цикл поиска по индексу
             node = node.next;
             count++;
-            if (count === index) {
-                node = node.prev;
-                let nex = node.next;
-                let new_node = new Node(data);
-                this.length++;
-                new_node.next = node.next;
+            if (count === index) {  //если на ходим значение
+                node = node.prev; //берём пред значение за основное
+                let nex = node.next; //добавляем в контейнер след ноду
+                let new_node = new Node(data); //создаем новую ноду
+                this.length++;          //прибавляем длину
+                new_node.next = node.next; //изменям указатели так, чтобы вклинить в нужное положение
                 new_node.prev = node;
                 node.next = new_node;
                 nex.prev = new_node;
@@ -71,114 +72,78 @@ class LinkedList {
     }
 
     isEmpty() {
-        if (this.length) {
+        if (this.length) {  //возвращает false если длина меньше 0
             return false
         }
         return true
     }
 
     clear() {
-        let node = this._head;
-
-        while (this.length > 0) {
-            if (this.length < 2 ) {
-                node.prev = null;
-                this._head = null;
-                this._tail = null;
-                this.length--;
-                return
-            }
-            node.next = null;
-            this.length--;
-        }
+        this.length = 0;
+        this._head = null;
+        this._tail = null;
+        return this;
     }
 
     deleteAt(index) {
-        let currentNode = this._head,
+        let curr = this._head,
             count = 0,
-            before = null,
-            node = null,
-            deleted;
+            pre = null,
+            node = null;
 
-        while (count < index) {
-            before = currentNode;
-            node = currentNode.next;
+        while (count < index) { //цикл поиска по индексу
+            pre = curr;
+            node = curr.next;
             count++;
         }
 
-        before.next = node.next;
-        deleted = node;
-        node = null;
-        this.length--;
-
-        return deleted;
+        if (curr === this._head && curr === this._tail) {
+            this._head = null;
+            this._tail = null;
+        } else {
+            pre.next = node.next;   //если находим, предыдущее значение перескакивает текущее по индексу
+            node = null; //удаляем тек значение
+            this.length--; //уменьшаем длину
+        }
     }
 
     reverse() {
-        let node = this._head,
-            count = 0,
-            mass = [node.data];
 
-        while (count < this.length-1) {
-            node = node.next;
-            mass.push(node.data);
-            count++;
+        let curr = this._head,
+            nex = null,
+            pre = null,
+            last = null;
+
+        while (curr != null) {//цикл перебора списка по очереди, пока не приведёт к концу
+            nex = curr.next; //складываем след в позицию
+            curr.next = pre; //след позиция получает предыдущую нынешней
+            curr.pre = nex; //пред позиция получает след позицию
+            pre = curr; //берём нынешнюю позицию в контейнер
+            curr = nex; //нынешняя позиция теперь поменялась местами с след
         }
 
-        let rev = mass.reverse();
-
-        list.clear();
-
-        while (mass.length > 0) {
-            let node = new Node(rev.shift());
-
-            if (this.length) {
-                this._tail.next = node;
-                node.prev = this._tail;
-                this._tail = node;
-            } else {
-                this._head = node;
-                this._tail = node;
-            }
-            this.length++;
-        }
-
+        last = this._tail;  //меняем конец и начало списка
+        this._tail = this._head;
+        this._head = last;
+        return this;
     }
 
     indexOf(data) {
-        let currentNode = this._head,
+
+        let curr = this._head,
             count = 0;
 
-        while (currentNode.data !== data) {
-            if (count >= this.length-1){
+        while (curr.data !== data) {//пока значение не будет равно требуемому продолжаем цикл
+            if (count >= this.length-1){//если значение не подходит и длина больше требуемой, возвращаем -1
                 return -1;
             }
-            currentNode = currentNode.next;
+            curr = curr.next;//переход к след иттерации
             count++;
         }
 
-        return count;
+        return count;//если значение находим выводим индекс
     }
 }
 
 module.exports = LinkedList;
 
-const list = new LinkedList();
-//
-list.append(1);
-list.append(2);
-list.append(3);
-list.append(4);
-list.append(5);
-list.append(6);
-
-list.reverse();
-//
-
-console.log(list.head());//6
-console.log(list.tail());//1
-console.log(list.at(1));//5
-console.log(list.at(2));//4
-console.log(list.at(3));//3
-console.log(list.at(4));//2
-console.log(list.length);
